@@ -1,27 +1,38 @@
+// index.js
+
+// Import required modules
 const express = require('express');
-const bodyParser = require('body-parser');
-const cors = require('cors');
-const userRoutes = require('./routes/userRoutes');
+const dbConfig = require('./config/db.config');
+const authConfig = require('./config/auth.config');
+const authTokenMiddleware = require('./middleware/authToken');
+
+// Create Express application
 const app = express();
+
+// Configure database
+dbConfig.connect();
+
+// Configure authentication
+authConfig.setup();
+
+// Middleware setup
+app.use(authTokenMiddleware);
+
+// Define routes
+const indicatorRoutes = require('./routes/Indicator');
+const loginRoutes = require('./routes/login');
+const registerRoutes = require('./routes/register');
+const rolesRoutes = require('./routes/Roles');
+const usersRoutes = require('./routes/Users');
+
+app.use('/api/indicator', indicatorRoutes);
+app.use('/api/login', loginRoutes);
+app.use('/api/register', registerRoutes);
+app.use('/api/roles', rolesRoutes);
+app.use('/api/users', usersRoutes);
+
+// Start the server
 const PORT = process.env.PORT || 3000;
-
-app.use(cors());
-app.use(bodyParser.json());
-
-app.use('/', userRoutes);
-
-
-
-app.get('/', (req, res) => {
-    res.json({ message: 'New Route in API/USER/DISPLAY Route' });
-});
-
-app.get('/api/user/display', (req, res) => {
-    res.json({ message: 'Public API' });
-});
-
 app.listen(PORT, () => {
-    console.log(`Server is running on http://localhost:${PORT}`);
+  console.log(`Server is running on port ${PORT}`);
 });
-
-//user routes
